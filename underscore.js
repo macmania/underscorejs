@@ -29,24 +29,14 @@ function reduce(list, iteratee, memo, context){
 	if(isNan(list)) {
 		return;
 	}
-	else if(memo == -1 || memo >= list.length){
-		console.log("the index passsed is illegal");
-		return;
-	}
 	else{
-		var value = 0; 
-		var newArr = list.slice(memo, list.length);
-		for(var i = memo; i < list.length; i++){
-			value = value + iteratee(memo, list[i], i, list);
+		var value = memo;
+		for(var i = 0; i < list.length; i++){
+			value = iteratee.call(null, value, list[i], i, list);
 		}
 		return value; //this reduces to one value
 	}
 }
-
-//console.log(reduce([1, 2, 3], function(memo, num){ return memo + num; }, 0));
-
-
-
 
 function isNan(object){
 	if(object == null){
@@ -56,16 +46,43 @@ function isNan(object){
 		return false; 
 	}
 }
-//works in some ways
-//Tests for each function
-/**console.log(each([1, 2, 3], function(x){
-	return console.log(sum(x));
-}));
-console.log(each({one: 1, two: 2, three: 3}, function(x){
-	console.log(sum(x));
-}));
-**/
 
+console.log(reduce([1, 2, 3], function(memo, num){ return memo + num; }, 0));
 
-//console.log(map([1, 2, 3], function(num){ return num * 3; }));
-//console.log(map({one: 1, two: 2, three: 3}, function(num, key){ return num * 3; }));
+function reduceRight(list, iteratee, memo, context){
+	if(isNan(list)){return;}
+	else{
+		var value = memo;
+		for(var i = list.length-1;i != 0; i--){
+			value = iteratee(call, null, value, list[i], i, list);
+		}
+		return value;
+	}
+}
+
+function find(list, predicate, context){
+	if(list.constructor == Array){
+		for(var i = 0; i < list.length; i++){
+			if(predicate(list[i])){return list[i];}
+		}
+	}else if(list.constructor == Object){
+		for(var e in list){
+			if(predicate(list[e])){return list[e];}
+		}
+	}
+	return null;
+}
+
+function filter(list, predicate, context){
+	var value = []; 
+	each(list, function(x){
+		if(predicate(x))
+			value.push(x);
+	});
+	return value;
+}
+
+function where(list, )
+
+console.log(find([1, 2, 3, 4, 5, 6], function(num){ return num % 2 == 0; }));
+console.log(filter([1, 2, 3, 4, 5, 6], function(num){ return num % 2 == 0; }));
