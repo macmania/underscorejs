@@ -416,12 +416,27 @@ function compact(array){
 	return newArray;
 }
 
-
+//flattens a given array
 function flatten(array, shallow){
 	if(isNull(array)){
-
+		return; 
+	}
+	else if(isNull(shallow)){ //flatten the array
+		var newArray = [];
+		each(array, function(x){
+			newArray.push(flattenHelper(x));
+		});
+		return newArray;
 	}
 }
+
+//returns 
+function without(array, *values){
+
+}
+
+flatte([1, [2], [3, [[4]]]]);
+//console.log(flatte([1, [2], [3, [[4]]]]));
 
 
 /*** Small Tests ***/
@@ -440,22 +455,6 @@ console.log(size({one: 1, two: 2, three: 3}));
 /*** Small case testing **/
 //console.log(contains([1, 2, 3, 4], 3));
 //console.log(contains([1, 2, 3, 4], 12));
-
-
-
-
-
-//console.log(reject([1, 2, 3, 4, 5, 6], function(num){ return num % 2 == 0; }));
-
-//var x = [{title: "Cybmeline", author: "Shakespeare", year: 1611}, {title:"XXXX", author: "Shakespeare", year: 1611}, {title:"xxx", author:"SSSSS", year:12221}];
-//console.log(where(x, {author: "Shakespeare", year: 1611}));
-
-/**
-console.log(find([1, 2, 3, 4, 5, 6], function(num){ return num % 2 == 0; }));
-console.log(filter([1, 2, 3, 4, 5, 6], function(num){ return num % 2 == 0; }));
-
-
-**/
 /*** Helper functions ***/
 function isNull(object){
 	if(object == null){
