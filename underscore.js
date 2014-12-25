@@ -55,7 +55,6 @@ function reduceRight(list, iteratee, memo, context){
 	}
 }
 
-<<<<<<< HEAD
 //finds the first element that satisfies the given predicate function of the list
 function find(list, predicate, context){
 	if(list.constructor == Array){
@@ -227,8 +226,6 @@ console.log(find([1, 2, 3, 4, 5, 6], function(num){ return num % 2 == 0; }));
 console.log(filter([1, 2, 3, 4, 5, 6], function(num){ return num % 2 == 0; }));
 
 /***** Helper Function ****/
-=======
->>>>>>> 67d42e23fd0806fa2fb1f7a1846922cc2d41df54
 function isNan(object){
 	if(object == null){
 		return true;
@@ -236,10 +233,8 @@ function isNan(object){
 	else {
 		return false; 
 	}
-<<<<<<< HEAD
 }
-=======
-}
+
 
 console.log(reduce([1, 2, 3], function(memo, num){ return memo + num; }, 0));
 
@@ -280,4 +275,3 @@ function where(list, )
 
 console.log(find([1, 2, 3, 4, 5, 6], function(num){ return num % 2 == 0; }));
 console.log(filter([1, 2, 3, 4, 5, 6], function(num){ return num % 2 == 0; }));
->>>>>>> 67d42e23fd0806fa2fb1f7a1846922cc2d41df54
