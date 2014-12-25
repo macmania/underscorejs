@@ -212,8 +212,28 @@ function contains(list, value){
 		return returnValue != null ? true : false;
 	}
 }
+
+
+function invoke(list, methodName, *arguments){
+	if(isNan(list)){
+		return;
+	}
+	else{
+		every(list, function(x){
+			this[methodName](x, arguments);
+		});
+	}
+}
+
+
+
+
+/*** Small case testing **/
 console.log(contains([1, 2, 3, 4], 3));
 console.log(contains([1, 2, 3, 4], 12));
+
+
+
 
 
 //console.log(reject([1, 2, 3, 4, 5, 6], function(num){ return num % 2 == 0; }));
@@ -236,42 +256,4 @@ function isNan(object){
 }
 
 
-console.log(reduce([1, 2, 3], function(memo, num){ return memo + num; }, 0));
 
-function reduceRight(list, iteratee, memo, context){
-	if(isNan(list)){return;}
-	else{
-		var value = memo;
-		for(var i = list.length-1;i != 0; i--){
-			value = iteratee(call, null, value, list[i], i, list);
-		}
-		return value;
-	}
-}
-
-function find(list, predicate, context){
-	if(list.constructor == Array){
-		for(var i = 0; i < list.length; i++){
-			if(predicate(list[i])){return list[i];}
-		}
-	}else if(list.constructor == Object){
-		for(var e in list){
-			if(predicate(list[e])){return list[e];}
-		}
-	}
-	return null;
-}
-
-function filter(list, predicate, context){
-	var value = []; 
-	each(list, function(x){
-		if(predicate(x))
-			value.push(x);
-	});
-	return value;
-}
-
-function where(list, )
-
-console.log(find([1, 2, 3, 4, 5, 6], function(num){ return num % 2 == 0; }));
-console.log(filter([1, 2, 3, 4, 5, 6], function(num){ return num % 2 == 0; }));
