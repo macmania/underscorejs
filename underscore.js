@@ -579,20 +579,45 @@ function difference(){
 /**Utility Functions ***/
 
 function isArray(element){
-	if(element.constructor == Array)
-		return true;
-	else
+	if(isValidObject(element) || element.constructor != Array)
 		return false;
+	else
+		return true;
 }
 
 function isObject(element){
-	if(element.constructor == Object)
-		return true;
-	else 
+	if(isValidObject(element) || element.constructor != Object)
 		return false;
+	else 
+		return true;
 }
 
+function isFunction(element){
+	if(isValidObject(element) || element.constructor != Function) { 
+		return false;
+	}
+    else {
+    	return true;
+    }
+}
 
+function isString(element){
+	if(isValidObject(element) || element.constructor != String){
+		return false;
+	}
+	else{
+		return true;
+	}
+}
+
+function isNumber(element){
+	if(isValidObject(element) || element.constructor != Number){
+		return false;
+	}
+	else{
+		return true;
+	}
+}
 /*** Helper functions ***/
 function isNull(object){
 	if(object == null){
@@ -600,6 +625,24 @@ function isNull(object){
 	}
 	else {
 		return false; 
+	}
+}
+
+function isValidObject(e){
+	if(isNull(e) || isUndefined(e)){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
+function isUndefined(object){
+	if(object == undefined){
+		return true;
+	}
+	else {
+		return false;
 	}
 }
 
