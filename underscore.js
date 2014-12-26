@@ -323,12 +323,7 @@ function first(array, numOfFirstElements){
 		console.log("array passed cannot be null");
 		return;
 	}
-	else if(!isNull(numOfFirstElements) && numOfFirstElements == array.length){
-		console.log("the number of elements that are accessed cannot be greater than the length of the array");
-		return;
-	}
-	else if(!isNull(numOfFirstElements) && numOfFirstElements < 0){
-		console.log("the number of elements that are accessed cannot be less than 0");
+	else if(isValidAccessNum(array, numOfFirstElements)){
 		return;
 	}
 	else{
@@ -416,45 +411,147 @@ function compact(array){
 	return newArray;
 }
 
-//flattens a given array
+//returns a new array that takes a multidimensional array and transforms this array into a 1D array
 function flatten(array, shallow){
-	if(isNull(array)){
-		return; 
+	var newArray = new Array;
+	if(shallow == null){
+		for(var i = 0; i < array.length; i++){
+			if(array[i].constructor == Array){
+				var x = flattenHelper(array[i]);
+				newArray = newArray.concat(x);
+			}
+			else{
+				newArray.push(array[i]);
+			}
+		}
 	}
-	else if(isNull(shallow)){ //flatten the array
-		var newArray = [];
-		each(array, function(x){
-			newArray.push(flattenHelper(x));
+	else{ //shallow is not null then flatten the array only once
+		for(var i = 0; i < array.length; i++){
+			if(array[i].constructor == Array){
+				each(array[i], function(x){
+					newArray.push(x);
+				});
+			}
+			else{
+				newArray.push(array[i]);
+			}
+		}
+	}
+	return newArray; 
+}
+
+function flattenHelper(array, array2){
+	if(array.constructor == Array){ //it's an array
+		for(var e = 0; e < array.length; e++){
+			if(array[e].constructor == Array){
+				if(array2 == null){
+					flattenHelper(array[e], new Array);
+				}
+				else
+					flattenHelper(array[e], array2)
+			}
+			else {
+				if(array2 == null){
+					array2 = new Array;
+					array2.push(array[e]);
+				}
+				else
+					array2.push(array[e]);
+			}
+		}
+		return array2;
+	}
+	else {
+		return array;
+	}
+}
+
+//returns a new array with all of the instances stored in the arguments removed
+function without(array){
+	if(isNull(array)) {
+		console.log("array passed cannot be null");
+		return;
+	}
+	else if(isArgumentsPassedValid(arguments == false)) {
+		return;
+	}
+	else{
+		//instantiates a new dictionary to store a key-value pair to make it easier to access values
+		var removeInstances = {},
+			newArray = [];
+		delete arguments['0']; //removes the first argument passed in the function
+		for(var e in arguments){
+			removeInstances[arguments[e]] = true;
+		}
+		newArray = reject(array, function(x){
+			if(!removeInstances[x]){
+				return false;
+			}
 		});
 		return newArray;
 	}
 }
 
-//returns 
-function without(array, *values){
+//console.log(without([1, 2, 3, 4, 5, 6, 7, 7, 8, 9], 1, 2, 4));
+//console.log(without([1, 2]));
 
+//computes the unique items of the array items passed as arguments
+function union(){
+	if(isArgumentsPassedValid(arguments) == false){
+		return;
+	}
+	else{
+		var dict = {}, 
+			newArray = [];
+
+		each(arguments, function(e){
+			if(isElementArray(e)){
+				each(e, function(x){
+					dict[x] = x;
+				});
+			}
+		});
+		each(dict, function(e){ 
+			newArray.push(e);
+		});
+
+		return newArray;
+	}
 }
 
-flatte([1, [2], [3, [[4]]]]);
-//console.log(flatte([1, [2], [3, [[4]]]]));
+
+console.log(intersection([1, 2, 3], [101, 2, 1, 10], [2, 1]));
 
 
-/*** Small Tests ***/
+//computes the items that are similar 
+function intersection(){
+	if(isArgumentsPassedValid(arguments) == false){
+		return;
+	}
+	else{
+		var dict = {}, 
+			newArray = []; 
+		each(arguments, function(e){
+			if(isElementArray(e)) {
+				each(e, function(x){
+					dict[x] = x;
+					if(dict[x] != undefined){
+						
+					}
+				});
+			}
+		});
+		console.log(dict);
+	
+		for(var e in dict){
+			if(dict[e] > 1){
+				newArray.push(e);
+			}
+		}
+		return newArray;
+	}
+}
 
-console.log(compact([0, 1, false, 2, '', 3, undefined, NaN, 1, 2, 3, "", 0, null]));
-
-//console.log(initial([5, 4, 3, 2, 1], 2));
-
-
-
-var stooges = [{name: 'moe', age: 40}, {name: 'larry', age: 50}, {name: 'curly', age: 60}];
-/***console.log(pluck(stooges, 'name'));
-console.log(size(stooges));
-console.log(size({one: 1, two: 2, three: 3}));
-**/
-/*** Small case testing **/
-//console.log(contains([1, 2, 3, 4], 3));
-//console.log(contains([1, 2, 3, 4], 12));
 /*** Helper functions ***/
 function isNull(object){
 	if(object == null){
@@ -484,5 +581,27 @@ function isValidAccessNum(array, numElements){
 	else if(numElements >= array.length){
 		console.log("Number of elements cannot be greater than or equal to the length of the array");
 		return null;
+	}
+}
+
+//checks to see if the number of arguments passed are sufficient
+function isArgumentsPassedValid(arguments){
+	if(arguments['0'] == undefined){
+		console.log("The number of arguments passed are not valid");
+		return false;
+	}
+	else{
+		return true;
+	}
+}
+
+//checks to see if the argument passed is of type array
+function isElementArray(e){
+	if(e.constructor == Array){
+		return true;
+	}
+	else{
+		console.log("Argument passed ", e, " is not valid");
+		return false;
 	}
 }
