@@ -523,7 +523,8 @@ function union(){
 console.log(intersection([1, 2, 3], [101, 2, 1, 10], [2, 1]));
 
 
-//computes the items that are similar 
+//computes the items that are similar with each other
+//need to fix the order in which the items were added 
 function intersection(){
 	if(isArgumentsPassedValid(arguments) == false){
 		return;
@@ -533,24 +534,64 @@ function intersection(){
 			newArray = []; 
 		each(arguments, function(e){
 			if(isElementArray(e)) {
-				each(e, function(x){
-					dict[x] = x;
-					if(dict[x] != undefined){
-						
-					}
-				});
+				if(size(dict) == 0){
+					each(e, function(x){
+						dict[x] = x; 
+					});
+				}
+				else{
+					each(e, function(x){
+						if(x in dict && newArray.indexOf(x) == -1){
+							newArray.push(x);
+						}
+						dict[x] = x;
+					});
+				}
 			}
 		});
-		console.log(dict);
-	
-		for(var e in dict){
-			if(dict[e] > 1){
-				newArray.push(e);
-			}
-		}
 		return newArray;
 	}
 }
+
+console.log(intersection([1, 2, 2, 2, 3], [1, 2, 2, 2, 2, 2, 2, 2]));
+
+//returns an array of all elements that are unique between n number of arrays passed as arguments
+function difference(){
+	if(isArgumentsPassedValid(arguments)){
+		return;
+	}
+	else{
+		var dict = {};
+		each(arguments, function(e){
+			if(isElementArray(e)){
+				//if the element e has duplicates 
+				each(e, function(i){
+					if(dict[i])
+						dict[i] = dict[i] + dict[i]
+					else
+						dict[i] = i; 
+				});
+			}
+		});
+	}
+}
+
+/**Utility Functions ***/
+
+function isArray(element){
+	if(element.constructor == Array)
+		return true;
+	else
+		return false;
+}
+
+function isObject(element){
+	if(element.constructor == Object)
+		return true;
+	else 
+		return false;
+}
+
 
 /*** Helper functions ***/
 function isNull(object){
