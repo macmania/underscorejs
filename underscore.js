@@ -275,20 +275,56 @@ function sortBy(list, iteratee, context){
 }
 
 function groupBy(list, iteratee, context){
+	if(!isValidObject(list)) 
+		return;
 
+	else {
+		var newGroup = {}, 
+			tempKey, 
+			isFunc = isFunction(iteratee) ? true : false;
+		
+		each(list, function(e){
+			tempKey = isFunc ? iteratee(e) : e[iteratee];
+			console.log(e[iteratee]);
+			if(isUndefined(newGroup[tempKey])){
+				newGroup[tempKey] = [e];
+			}
+			else {
+				newGroup[tempKey].push(e);
+			}
+
+		});
+		return newGroup;
+	}
 }
 
 function indexBy(list, iteratee, context){
-
+	var newGroup = groupBy(list, iteratee, context);
+	return newGroup;
 }
-function countBy(list, iteratee, context){
 
+function countBy(list, iteratee, context){
+	var newGroup = groupBy(list, iteratee);
+	
+	for(var i in newGroup){
+		newGroup[i] = newGroup[i].length;
+	}
+	return newGroup;
 }
 
 
 //uses the fisher-yates shuffle method in shuffling the given list
 function shuffle(list){
+	if(!isValidObject(list)) 
+		return;
 
+	for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = list[i];
+        list[i] = list[j];
+        list[j] = temp;
+    }
+    return list;
 }
 
 
@@ -296,11 +332,67 @@ function shuffle(list){
 //produces a random items from the list, this random number of items 
 //is determined by the n argument
 function sample(list, n){
+	if(!isValidObject(list)) 
+		return;
+	
+	if(!isValidObject(n)){
+		var index = Math.floor(Math.random() * (list.length - 1) + 0);
+		if(isArray(list)) 
+			return list[index]; 
+		else {
+			var c = 0;
+			return getValByIndex(list, index);
+		}
+	}
 
+	if(n < 0 || n > list.length - 1) 
+		return;
+
+	var i = n, 
+		dictRandomInd = {}, 
+		index, 
+		isArr = isArray(list), 
+		newSample = []; 
+	//generate the random indices by using a dictionary
+	for(; i > 0;){
+		index = Math.floor(Math.random() * (list.length - 1) + 0);
+		if(isUndefined(dictRandomInd[index])){
+			dictRandomInd[index] = index;
+			i--;
+		}
+	}
+
+	each(dictRandomInd, function(i){
+		if(isArr){
+			newSample.push(list[i]);
+		}
+		else {
+			newSample.push(getValByIndex(list, i));
+		}
+	});
+	return newSample;
+}
+
+function getValByIndex(list, index){
+	var c = 0;
+	for(var i in list){
+		if(c == index)
+			return list[i];
+		c++;
+	}
 }
 //returns an array 
 function toArray(list){
+	if(!isValidObject(list))
+		return;
+	else if(isArray(list))
+		return list;
 
+	var newArray = [];
+	each(list, function(e){
+		newArray.push(e);
+	});
+	return newArray;
 }
 
 //returns the number of items in the list
@@ -625,8 +717,6 @@ function difference(array){
 	}
 }
 
-console.log(difference([1, 2, 3, 4, 5], [5, 2, 10]));
-
 //temporary function, still need to add more functionality
 function uniq(array, isSorted, iteratee) {
 	if(isValidObject(array) && isArray(array)){
@@ -649,6 +739,10 @@ function uniq(array, isSorted, iteratee) {
 
 }
 
+
+function zip(){
+	
+}
 
 /**Utility Functions ***/
 
@@ -694,7 +788,9 @@ function isEqual(object, other) {
 	return true;
 }
 
-
+function isEmpty(object) {
+	return (isValidObject(object));
+} 
 //checks if the node passed is a DOM element
 function isElement(node) {
 	if(!isValidObject(node)){
@@ -706,105 +802,69 @@ function isElement(node) {
 }
 
 function isArray(element){
-	if(!isValidObject(element) || element.constructor != Array)
-		return false;
-	else
-		return true;
+	return (isValidObject(element) && element.constructor == Array);
 }
 
 function isObject(element){
-	if(!isValidObject(element) || element.constructor != Object)
-		return false;
-	else 
-		return true;
+	return (isValidObject(element) && element.constructor == Object);
+}
+
+function isArguments(element){
+	return (isValidObject(element) && ((Object.prototype.toString.call(element) == '[object Arguments]') || (!!obj.callee)));
 }
 
 function isFunction(element){
-	if(!isValidObject(element) || element.constructor != Function) { 
-		return false;
-	}
-    else {
-    	return true;
-    }
+	return (isValidObject(element) && element.constructor == Function);
 }
 
 function isString(element){
-	if(!isValidObject(element) || element.constructor != String){
-		return false;
-	}
-	else{
-		return true;
-	}
-}
-
-function isBoolean(element){
-	if(!isValidObject(element) || element.constructor != Boolean) {
-		return false;
-	}
-	return true;
-}
-
-function isFinite(element) {
-	if(element == -Infinity || element == Infinity) {
-		return false;
-	}
-	return true;
+	return (isValidObject(element) && element.constructor == String);
 }
 
 function isNumber(element){
-	if(!isValidObject(element) || element.constructor != Number){
-		return false;
-	}
-	else{
-		return true;
-	}
+	return (isValidObject(element) && element.constructor == Number);
 }
-/*** Helper functions ***/
-function isNull(object){
-	if(object == null){
-		return true;
-	}
-	else {
-		return false; 
-	}
+
+
+function isFinite(element) {
+	return !(element == -Infinity || element == Infinity);
+}
+
+
+function isBoolean(element){
+	return (isValidObject(element) && element.constructor == Boolean);
+}
+
+function isDate(element){
+	return (isValidObject(element) && Object.prototype.toString.call(element) == '[object Date]');
+}
+
+function isRegExp(element){
+	return (isValidObject(element) && Object.prototype.toString.call(element) == '[object RegExp]');
 }
 
 function isNan(object) {
-	if(!isValidObject(object) || !isNaN(object)){
-		return false;
-	}
-	return true;
+	return (isValidObject(object) || isNaN(object));
+}
+
+function isNull(object){
+	return (object == null);
+}
+
+
+function isUndefined(object){
+	return (object == undefined);
 }
 
 function isValidObject(e){
-	if(isNull(e) || isUndefined(e)){
-		return false;
-	}
-	return true;
+	return (!isNull(e) || !isUndefined(e));
 }
 
-function isUndefined(object){
-	if(object == undefined){
-		return true;
-	}
-	return false;
-}
-
-function isEmpty(object) {
-	if(isValidObject) {
-		return false;
-	}
-	return true;
-}
 
 //looks at object e to see if it is a falsy member
 function isFalsy(e){
-	if(e == false || e == null || e == 0 || e == "" && e == undefined || e == NaN || isNaN(e)){
-		return true;
-	}
-	else{
-		return false;
-	}
+	return (e == false || e == null || e == 0 || e == "" && e == undefined || e == NaN || isNaN(e))
+	
 }
 
 //checks to see if the numElements is a valid number to do operations on the array
