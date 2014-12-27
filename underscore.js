@@ -236,21 +236,42 @@ function pluck(list, propertyName){
 
 //returns the max value of a given list or dictionary
 function max(list, iteratee, context){
-	//sort the list first then find the max value
-	//to-do :(
+	var newList = sortBy(list, iteratee, context);
+	return newList[0];
 }
-
-
 
 
 
 function min(list, iteratee, context){
+	var newList = sortBy(list, iteratee, context), 
+		lastIndex = newList.length - 1;
 
+	return newList[lastIndex];
 }
 
 
 function sortBy(list, iteratee, context){
+	if(isValidObject(list) == false) {
+		return -Infinity;
+	}
 
+	else {
+		var newList = [].concat(list);
+		if(iteratee){
+			newList.sort(iteratee); 
+		}
+		else {
+			newList.sort(function(a, b){ 
+				if(a < b)
+					return 1; 
+				else if(a == b)
+					return 0;
+				else
+					return -1;
+			});
+		}
+		return newList;
+	}
 }
 
 function groupBy(list, iteratee, context){
@@ -520,9 +541,6 @@ function union(){
 }
 
 
-console.log(intersection([1, 2, 3], [101, 2, 1, 10], [2, 1]));
-
-
 //computes the items that are similar with each other
 //need to fix the order in which the items were added 
 function intersection(){
@@ -531,69 +549,178 @@ function intersection(){
 	}
 	else{
 		var dict = {}, 
-			newArray = []; 
-		each(arguments, function(e){
-			if(isElementArray(e)) {
-				if(size(dict) == 0){
+			tempArray = [], 
+			newArray = [];
+		if(isElementArray(arguments['0'])) {
+			var oldArray = uniq(arguments['0']); 
+			tempArray = tempArray.concat(oldArray);
+			each(tempArray, function(e) {
+				dict[e] = {value: e, size: 1};
+			});
+
+			delete arguments['0'];
+			
+			each(arguments, function(e) {
+				e = uniq(e);
+				console.log(e, "hello");
+				if(isElementArray(e)){
 					each(e, function(x){
-						dict[x] = x; 
-					});
-				}
-				else{
-					each(e, function(x){
-						if(x in dict && newArray.indexOf(x) == -1){
-							newArray.push(x);
+						if(dict[x]){
+							dict[x].size = dict[x].size+1; 
+							console.log(dict[x]);
 						}
-						dict[x] = x;
 					});
 				}
+			});
+			var s = size(arguments) + 1; 
+			console.log(dict);
+			each(tempArray, function(x){
+				if(dict[x].size/s == 1){
+					newArray.push(dict[x].value); 
+				}
+			});
+		}
+		else{
+			return;
+		}
+
+		return newArray;
+	}
+}
+
+
+//returns an array of all elements that are unique between n number of arrays passed as arguments
+//not sure...??
+function difference(array){
+	if(isArgumentsPassedValid(arguments) == false)
+		return;
+
+	else {
+		var dict = {}, 
+			newArray = [];
+		each(array, function(e){
+			dict[e] = {size:1, value: e}
+		});
+		delete arguments[0];
+		each(arguments, function(e){
+			if(isElementArray(e)){
+				//if the element e has duplicates 
+				e = uniq(e);
+				each(e, function(i){
+					if(isUndefined(dict[i]) == false){
+						dict[i].size = dict[i].size+1;
+
+					}
+				});
+			}
+		});
+
+
+		each(array, function(e){
+			if(dict[e].size == 1){
+				newArray.push(e);
 			}
 		});
 		return newArray;
 	}
 }
 
-console.log(intersection([1, 2, 2, 2, 3], [1, 2, 2, 2, 2, 2, 2, 2]));
+console.log(difference([1, 2, 3, 4, 5], [5, 2, 10]));
 
-//returns an array of all elements that are unique between n number of arrays passed as arguments
-function difference(){
-	if(isArgumentsPassedValid(arguments)){
-		return;
-	}
-	else{
-		var dict = {};
-		each(arguments, function(e){
-			if(isElementArray(e)){
-				//if the element e has duplicates 
-				each(e, function(i){
-					if(dict[i])
-						dict[i] = dict[i] + dict[i]
-					else
-						dict[i] = i; 
-				});
+//temporary function, still need to add more functionality
+function uniq(array, isSorted, iteratee) {
+	if(isValidObject(array) && isArray(array)){
+		var dict = {}, 
+		    newArray = [];
+		
+		each(array, function(e){
+			if(isNull(dict[e])){
+				newArray.push(e)
+				dict[e] = e;
 			}
 		});
+		return newArray;
 	}
+
+	else {	
+		console.log("argument passed is not valid");
+		return;
+	}
+
 }
+
 
 /**Utility Functions ***/
 
+function isEqual(object, other) {
+	if(!isValidObject(object) || !isValidObject(other)) {
+		return false;
+	}
+
+	if(object.constructor != other.constructor){
+		return false;
+	}	
+	if(isArray(object)){
+		if(object.length != other.length)
+			return false;
+
+		for(var i = 0; i < object.length; i++) {
+			if(isArray(object[i]) || isObject(object[i])) {
+				if(isEqual(object[i], other[i]) == false){
+					return false;
+				}
+			}
+			if(object[i] != other[i]){
+				return false;
+			}
+		}
+	}
+	else if(isObject(object)) {
+		for(var e in object) {
+			if(isArray(object[e]) || isObject(object[e])){
+				if(isEqual(object[e], other[e]) == false){
+					return false;
+				}
+			}
+			else if(object[e] != other[e]) {
+				return false;
+			}
+		}
+	}
+	else if(object != other) {
+		return false;
+	}
+
+	return true;
+}
+
+
+//checks if the node passed is a DOM element
+function isElement(node) {
+	if(!isValidObject(node)){
+		return false;
+	}
+	else {
+		return node.tagName ? true : false; //if the node has a tag name
+	}
+}
+
 function isArray(element){
-	if(isValidObject(element) || element.constructor != Array)
+	if(!isValidObject(element) || element.constructor != Array)
 		return false;
 	else
 		return true;
 }
 
 function isObject(element){
-	if(isValidObject(element) || element.constructor != Object)
+	if(!isValidObject(element) || element.constructor != Object)
 		return false;
 	else 
 		return true;
 }
 
 function isFunction(element){
-	if(isValidObject(element) || element.constructor != Function) { 
+	if(!isValidObject(element) || element.constructor != Function) { 
 		return false;
 	}
     else {
@@ -602,7 +729,7 @@ function isFunction(element){
 }
 
 function isString(element){
-	if(isValidObject(element) || element.constructor != String){
+	if(!isValidObject(element) || element.constructor != String){
 		return false;
 	}
 	else{
@@ -610,8 +737,22 @@ function isString(element){
 	}
 }
 
+function isBoolean(element){
+	if(!isValidObject(element) || element.constructor != Boolean) {
+		return false;
+	}
+	return true;
+}
+
+function isFinite(element) {
+	if(element == -Infinity || element == Infinity) {
+		return false;
+	}
+	return true;
+}
+
 function isNumber(element){
-	if(isValidObject(element) || element.constructor != Number){
+	if(!isValidObject(element) || element.constructor != Number){
 		return false;
 	}
 	else{
@@ -628,22 +769,32 @@ function isNull(object){
 	}
 }
 
-function isValidObject(e){
-	if(isNull(e) || isUndefined(e)){
-		return true;
-	}
-	else{
+function isNan(object) {
+	if(!isValidObject(object) || !isNaN(object)){
 		return false;
 	}
+	return true;
+}
+
+function isValidObject(e){
+	if(isNull(e) || isUndefined(e)){
+		return false;
+	}
+	return true;
 }
 
 function isUndefined(object){
 	if(object == undefined){
 		return true;
 	}
-	else {
+	return false;
+}
+
+function isEmpty(object) {
+	if(isValidObject) {
 		return false;
 	}
+	return true;
 }
 
 //looks at object e to see if it is a falsy member
